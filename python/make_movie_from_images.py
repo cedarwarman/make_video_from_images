@@ -39,6 +39,7 @@ make_movie_from_images.py
 import glob
 import os
 import argparse
+import numpy as np
 from PIL import Image
 
 
@@ -67,11 +68,52 @@ parser.add_argument('-b',
                     help=('Use with -t. Time between plating and video start, in ms'))
 args = parser.parse_args()
 
+
+### Import image
+def import_img(file):
+    img = Image.open(file)
+    return img
+
+
+### Converting from 12 to 8 bit
+def convert_img(img):
+    # Grabbing the min and max for the conversion.
+    array_min = np.amin(img)
+    # You might have to figure out a better conversion solution to fix the
+    # flickering. Here's using a fixed interval, as opposed to below
+    array_max = 3300
+    #array_max = np.amax(img)
+    
+    # I'm doing the conversion the same way ImageJ does it, which is linearly
+    # scaling from the min-max of the input image to 0-255. Most of the images
+    # I've looked at have a max of only ~3000, so this works well. Because 16
+    # bit images can go up to 65,536, it's only using the very dark pixels.
+    # That's probably why they all look black when opening them on a regular
+    # computer. Not sure how to fix this on the microscope, might be a quirk of
+    # the camera.
+    converted_img = ((img - array_min)
+                        * (1 / (array_max - array_min))
+                        * 255).astype('uint8')
+
+    # PIL won't recognize it as an image, because in the previous step I
+    # converted it to an array. Converting it back into a PIL image here.
+    converted_img = Image.fromarray(converted_img)
+
+    return converted_img
+     
+
 ### Here's the main
 def main():
     os.chdir(args.input_dir)
+    temp_folder_name = "temp_movie_frame_output"
+    os.mkdir(temp_folder_name)
+    
     for file in glob.glob("*.tif"):
-        print(file)
+        print("Converting " + file)
+        image = import_img(file)
+        image = convert_img(image)
+        output_save_path = os.path.join(args.input_dir, temp_folder_name, file)
+        image.save(output_save_path)
 
 
 if __name__== "__main__":
