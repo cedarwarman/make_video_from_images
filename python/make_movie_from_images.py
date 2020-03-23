@@ -35,6 +35,9 @@ make_movie_from_images.py
     -b <buffer_in_ms> # Only used if -t present, time from start to first frame
 """
 
+
+import glob
+import os
 import argparse
 from PIL import Image
 
@@ -56,10 +59,20 @@ parser.add_argument('-t',
 parser.add_argument('-z',
                     '--interval',
                     type=int,
-					default=500,
+                    default=500,
                     help=('Use with -t. Interval between images, in ms'))
 parser.add_argument('-b',
                     '--buffer',
                     type=int,
                     help=('Use with -t. Time between plating and video start, in ms'))
 args = parser.parse_args()
+
+### Here's the main
+def main():
+    os.chdir(args.input_dir)
+    for file in glob.glob("*.tif"):
+        print(file)
+
+
+if __name__== "__main__":
+  main()
