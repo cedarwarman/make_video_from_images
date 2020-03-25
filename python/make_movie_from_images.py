@@ -40,7 +40,7 @@ import glob
 import os
 import argparse
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 
 # Setting up arguments
@@ -62,8 +62,8 @@ parser.add_argument('-z',
                     type=int,
                     default=500,
                     help=('Use with -t. Interval between images, in ms'))
-parser.add_argument('-b',
-                    '--buffer',
+parser.add_argument('-s',
+                    '--start_time',
                     type=int,
                     help=('Use with -t. Time between plating and video start, in ms'))
 args = parser.parse_args()
@@ -75,14 +75,31 @@ def import_img(file):
     return img
 
 
+### Getting the max pixel value from all the images, for 8-12 bit conversion
+def get_max_px(input_dir):
+    os.chdir(input_dir)
+    
+    # This will hold the max pixel value across all the images
+    max_px = 0
+    print("Getting max px.......")
+
+    for file in glob.glob("*.tif"):
+        image = import_img(file)
+        image_max_px = np.amax(image)
+
+        if image_max_px > max_px:
+            max_px = image_max_px
+
+    print("max_px = " + str(max_px) + "\n")
+
+    return max_px
+
+
 ### Converting from 12 to 8 bit
-def convert_img(img):
+def convert_img(img, max_px = 3300):
     # Grabbing the min and max for the conversion.
     array_min = np.amin(img)
-    # You might have to figure out a better conversion solution to fix the
-    # flickering. Here's using a fixed interval, as opposed to below
-    array_max = 3300
-    #array_max = np.amax(img)
+    array_max = max_px
     
     # I'm doing the conversion the same way ImageJ does it, which is linearly
     # scaling from the min-max of the input image to 0-255. Most of the images
@@ -100,18 +117,70 @@ def convert_img(img):
     converted_img = Image.fromarray(converted_img)
 
     return converted_img
-     
+
+### Adds a timestamp
+def add_time_stamp(img, current_time, original_script_path):
+    # Setting up the image size
+    image_width, image_height = img.size
+
+    # Setting up the fonts
+    fonts_path = os.path.join(os.path.dirname(os.path.dirname(original_script_path)), 'fonts')
+    font = ImageFont.truetype(os.path.join(fonts_path, 'arial.ttf'), 70)
+
+    # Converting ms to minutes and seconds and setting up the print string
+    seconds = (current_time/1000)%60
+    seconds = int(seconds)
+    minutes = (current_time/(1000*60))%60
+    minutes = int(minutes)
+    print_string = str(minutes).zfill(2) + "m " + str(seconds).zfill(2) + "s"
+    
+    ImageDraw.Draw(img).text((image_width - 300, image_height - 100), 
+        print_string, 
+        font = font,
+        align="left")  
+
+    return(img)
 
 ### Here's the main
 def main():
+    original_script_path = os.path.abspath(__file__)
     os.chdir(args.input_dir)
     temp_folder_name = "temp_movie_frame_output"
-    os.mkdir(temp_folder_name)
+
+    # Making a directory to do all the processing in. This setup is for
+    # testing, it shouldn't exist, and if it does you definitely shouldn't
+    # delete it, which is eventually what's going to happen. Fix for the final
+    # version.
+    if not os.path.exists(temp_folder_name):
+        os.mkdir(temp_folder_name)
+
+    # Sets up the starting time for the first frame
+    if args.timestamp:
+        time = args.start_time
+        print("timestamp activated, starting time = " + 
+            str(time) +
+            " ms")
+    else:
+        time = 0
+
+    print(time)
+
+    # Goes through all the images to find the max pixel value. Used for scaling
+    # in the 16 to 8 bit conversion.
+    max_px = get_max_px(args.input_dir)
     
+    # Processing each frame
     for file in glob.glob("*.tif"):
-        print("Converting " + file)
+        print("Processing " + file)
         image = import_img(file)
-        image = convert_img(image)
+        image = convert_img(image, max_px)
+
+        # Adding the timestamp
+        if args.timestamp:
+            print("Adding timestamp\n")
+            image = add_time_stamp(image, time, original_script_path)
+            time = time + args.interval
+
         output_save_path = os.path.join(args.input_dir, temp_folder_name, file)
         image.save(output_save_path)
 
