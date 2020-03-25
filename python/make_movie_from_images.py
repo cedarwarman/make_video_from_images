@@ -39,6 +39,7 @@ make_movie_from_images.py
 import glob
 import os
 import argparse
+import ffmpeg
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
@@ -118,6 +119,7 @@ def convert_img(img, max_px = 3300):
 
     return converted_img
 
+
 ### Adds a timestamp
 def add_time_stamp(img, current_time, original_script_path):
     # Setting up the image size
@@ -140,6 +142,21 @@ def add_time_stamp(img, current_time, original_script_path):
         align="left")  
 
     return(img)
+
+
+### Makes a movie
+def make_movie(input_dir, output_dir):
+    # Making the input path
+    in_path = os.path.join(input_dir, '*.tif')
+    out_path = os.path.join(output_dir, 'movie_output.mp4')
+
+    # Using the ffmpeg bindings:
+    (
+        ffmpeg
+        .input(in_path, pattern_type='glob', framerate=30)
+        .output(out_path, vcodec='libx264', pix_fmt='yuv420p')
+        .run()
+    )
 
 ### Here's the main
 def main():
@@ -183,6 +200,11 @@ def main():
 
         output_save_path = os.path.join(args.input_dir, temp_folder_name, file)
         image.save(output_save_path)
+
+    # Making the movie
+    movie_input_dir = os.path.join(args.input_dir, temp_folder_name)
+    make_movie(movie_input_dir, args.output_dir)
+
 
 
 if __name__== "__main__":
