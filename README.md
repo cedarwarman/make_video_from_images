@@ -8,6 +8,6 @@ This repository makes a movie, with optional time stamp, from µManager time lap
 Use this script to make a movie from µManager time lapse output.
 
 ## Requirements
-pillow
-ffmpeg-python
-numpy
+pillow  
+ffmpeg-python  
+numpy  
