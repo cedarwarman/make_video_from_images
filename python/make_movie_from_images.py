@@ -32,12 +32,13 @@ make_movie_from_images.py
     -o <output_image_dir>
     -t # Flag to include timestamp
     -z <interval_in_ms> # Only used if -t present, interval between images
-    -b <buffer_in_ms> # Only used if -t present, time from start to first frame
+    -s <buffer_in_s> # Only used if -t present, time from start to first frame
 """
 
 
 import glob
 import os
+import shutil
 import argparse
 import ffmpeg
 import numpy as np
@@ -66,7 +67,7 @@ parser.add_argument('-z',
 parser.add_argument('-s',
                     '--start_time',
                     type=int,
-                    help=('Use with -t. Time between plating and video start, in ms'))
+                    help=('Use with -t. Time between plating and video start, in s'))
 args = parser.parse_args()
 
 
@@ -146,9 +147,13 @@ def add_time_stamp(img, current_time, original_script_path):
 
 ### Makes a movie
 def make_movie(input_dir, output_dir):
-    # Making the input path
+    # Making the input and output paths
     in_path = os.path.join(input_dir, '*.tif')
-    out_path = os.path.join(output_dir, 'movie_output.mp4')
+
+    output_file_name = str(os.path.basename(output_dir)) + ".mp4"
+    out_path = os.path.join(output_dir, output_file_name)
+    print("out path for the movie is: ")
+    print(out_path)
 
     # Using the ffmpeg bindings:
     (
@@ -160,6 +165,7 @@ def make_movie(input_dir, output_dir):
 
 ### Here's the main
 def main():
+    # Setting up the temporary processing folder
     original_script_path = os.path.abspath(__file__)
     os.chdir(args.input_dir)
     temp_folder_name = "temp_movie_frame_output"
@@ -173,21 +179,19 @@ def main():
 
     # Sets up the starting time for the first frame
     if args.timestamp:
-        time = args.start_time
+        time = args.start_time * 1000
         print("timestamp activated, starting time = " + 
             str(time) +
             " ms")
     else:
         time = 0
 
-    print(time)
-
     # Goes through all the images to find the max pixel value. Used for scaling
     # in the 16 to 8 bit conversion.
     max_px = get_max_px(args.input_dir)
     
     # Processing each frame
-    for file in glob.glob("*.tif"):
+    for file in sorted(glob.glob("*.tif")):
         print("Processing " + file)
         image = import_img(file)
         image = convert_img(image, max_px)
@@ -205,6 +209,8 @@ def main():
     movie_input_dir = os.path.join(args.input_dir, temp_folder_name)
     make_movie(movie_input_dir, args.output_dir)
 
+    # Deleting the temporary directory
+    shutil.rmtree(movie_input_dir)
 
 
 if __name__== "__main__":
