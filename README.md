@@ -17,7 +17,7 @@ numpy
 Setting up an environment
 
 ````
-conda create -n make_movie_from_images python=3.9 ffmpeg numpy pillow
+conda create -n make_movie_from_images python=3.9 ffmpeg ffmpeg-python numpy pillow
 ````
 
 <br> Downloading files from Google Drive with rclone
