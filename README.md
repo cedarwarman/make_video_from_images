@@ -7,11 +7,13 @@ This repository makes a movie, with optional time stamp, from µManager time lap
 *make_movie_from_images.py*  
 Use this script to make a movie from µManager time lapse output.
 <br>
-*    -i <input_image_dir>
-*    -o <output_image_dir>
-*    -t # Flag to include timestamp
-*    -z <interval_in_ms> # Only used if -t present, interval between images
-*    -s <buffer_in_s> # Only used if -t present, time from start to first frame
+````
+    -i <input_image_dir>
+    -o <output_image_dir>
+    -t # Flag to include timestamp
+    -z <interval_in_ms> # Only used if -t present, interval between images
+    -s <buffer_in_s> # Only used if -t present, time from start to first frame
+````
 
 ## Requirements
 pillow  
