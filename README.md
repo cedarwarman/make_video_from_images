@@ -8,6 +8,7 @@ This repository makes a movie, with optional time stamp, from µManager time lap
 Use this script to make a movie from µManager time lapse output.
 <br>
 ````
+make_movie_from_images.py
     -i <input_image_dir>
     -o <output_image_dir>
     -t # Flag to include timestamp
