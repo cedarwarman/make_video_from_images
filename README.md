@@ -14,20 +14,26 @@ numpy
 
 ## Example installation and use on an HPC with Conda, rclone/Google Drive, and SLURM
 
-Setting up an environment
+**Setting up an environment**
 
 ````
 conda create -n make_movie_from_images python=3.9 ffmpeg ffmpeg-python numpy pillow
 ````
 
-<br> Downloading files from Google Drive with rclone
+<br> **Downloading files from Google Drive with rclone**
 
 ````
 rclone copy gdrive_me:/Imaging_videos_hypoploids/2021_zip_files_not_processed . --drive-shared-with-me -v
 ````
 
-<br> Unzipping the files
+<br> **Unzipping the files**
 
 ````
 7za x '*.zip'
+````
+
+<br> **Running for a single folder of images**
+<br> Note: not having a slash for the output directory is important, it makes the output video name with os.path.basename, which will return an empty string if there's a trailing slash.
+````
+python ~/scripts/make_movie_from_images/python/make_movie_from_images.py -i /xdisk/rpalaniv/cedar/images_to_movies/20210304/2_17_2021_5/Default/ -o /xdisk/rpalaniv/cedar/images_to_movies/20210304/2_17_2021_5 -t -z 500 -s 840
 ````
