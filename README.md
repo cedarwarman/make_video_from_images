@@ -47,3 +47,8 @@ rclone copy gdrive_me:/Imaging_videos_hypoploids/2021_zip_files_not_processed . 
 conda activate make_movie_from_images
 python ~/scripts/make_movie_from_images/python/make_movie_from_images.py -i /xdisk/rpalaniv/cedar/images_to_movies/20210304/2_17_2021_5/Default/ -o /xdisk/rpalaniv/cedar/images_to_movies/20210304/2_17_2021_5 -t -z 500 -s 840
 ````
+
+<br> ** Putting all the movies in a single folder
+````
+find . -name '*.mp4' -exec mv {} /folder/path/ \;
+````
