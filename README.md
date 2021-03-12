@@ -21,7 +21,7 @@ pillow
 ffmpeg-python  
 numpy  
 
-## Example installation and use on an HPC with Conda, rclone/Google Drive, and SLURM
+## Example installation and use with Conda, rclone/Google Drive.
 
 **Setting up an environment**
 
@@ -44,5 +44,6 @@ rclone copy gdrive_me:/Imaging_videos_hypoploids/2021_zip_files_not_processed . 
 <br> **Running for a single folder of images**
 <br> Note: not having a slash for the output directory is important, it makes the output video name with os.path.basename, which will return an empty string if there's a trailing slash.
 ````
+conda activate make_movie_from_images
 python ~/scripts/make_movie_from_images/python/make_movie_from_images.py -i /xdisk/rpalaniv/cedar/images_to_movies/20210304/2_17_2021_5/Default/ -o /xdisk/rpalaniv/cedar/images_to_movies/20210304/2_17_2021_5 -t -z 500 -s 840
 ````
