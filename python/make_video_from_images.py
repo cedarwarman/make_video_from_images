@@ -140,6 +140,8 @@ def add_time_stamp(img, current_time, original_script_path):
     ImageDraw.Draw(img).text((image_width - 300, image_height - 100), 
         print_string, 
         font = font,
+        stroke_width = 1,
+        stroke_fill = (255),
         align="left")  
 
     return(img)
