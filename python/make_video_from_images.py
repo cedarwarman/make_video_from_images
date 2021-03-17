@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #########################################################
-#  make_movie_from_images
+#  make_video_from_images
 #
 #  Copyright 2020
 #
@@ -21,13 +21,13 @@
 #########################################################
 
 """
-Takes a folder full of images, outputs a movie. Designed to take micro-manager
+Takes a folder full of images, outputs a video. Designed to take micro-manager
 time lapse output in 12 bit tif format. Not sure how this will work with other
 inputs, but might be a good place to start.
 
 Usage:
 
-make_movie_from_images.py
+make_video_from_images.py
     -i <input_image_dir>
     -o <output_image_dir>
     -t # Flag to include timestamp
@@ -46,7 +46,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 # Setting up arguments
-parser = argparse.ArgumentParser(description='make_movie_from_images')
+parser = argparse.ArgumentParser(description='make_video_from_images')
 parser.add_argument('-i', 
                     '--input_dir',
                     type=str,
@@ -145,14 +145,14 @@ def add_time_stamp(img, current_time, original_script_path):
     return(img)
 
 
-### Makes a movie
-def make_movie(input_dir, output_dir):
+### Makes a video
+def make_video(input_dir, output_dir):
     # Making the input and output paths
     in_path = os.path.join(input_dir, '*.tif')
 
     output_file_name = str(os.path.basename(output_dir)) + ".mp4"
     out_path = os.path.join(output_dir, output_file_name)
-    print("out path for the movie is: ")
+    print("out path for the video is: ")
     print(out_path)
 
     # Using the ffmpeg bindings:
@@ -168,7 +168,7 @@ def main():
     # Setting up the temporary processing folder
     original_script_path = os.path.abspath(__file__)
     os.chdir(args.input_dir)
-    temp_folder_name = "temp_movie_frame_output"
+    temp_folder_name = "temp_video_frame_output"
 
     # Making a directory to do all the processing in. This setup is for
     # testing, it shouldn't exist, and if it does you definitely shouldn't
@@ -205,12 +205,12 @@ def main():
         output_save_path = os.path.join(args.input_dir, temp_folder_name, file)
         image.save(output_save_path)
 
-    # Making the movie
-    movie_input_dir = os.path.join(args.input_dir, temp_folder_name)
-    make_movie(movie_input_dir, args.output_dir)
+    # Making the video
+    video_input_dir = os.path.join(args.input_dir, temp_folder_name)
+    make_video(video_input_dir, args.output_dir)
 
     # Deleting the temporary directory
-    shutil.rmtree(movie_input_dir)
+    shutil.rmtree(video_input_dir)
 
 
 if __name__== "__main__":
