@@ -3,13 +3,13 @@
 #########################################################
 #  make_video_from_images
 #
-#  Copyright 2020
+#  Copyright 2021
 #
 #  Cedar Warman
 #
-#  Department of Botany & Plant Pathology
-#  Oregon State University
-#  Corvallis, OR 97331
+#  School of Plant Sciences
+#  University of Arizona
+#  Tucson, AZ 85705
 #
 # This program is not free software; it can be used and modified
 # for non-profit only.
@@ -76,6 +76,15 @@ def import_img(file):
     img = Image.open(file)
     return img
 
+### Case insensitive image file path list
+def case_insensitive_path_list(extension_list):
+    full_file_path_list = []
+    for full_file_path in glob.glob("*"):
+        base, ext = os.path.splitext(full_file_path)
+        if ext.lower() in extension_list:
+            full_file_path_list.append(full_file_path)
+    return(full_file_path_list)
+
 
 ### Getting the max pixel value from all the images, for 8-12 bit conversion
 def get_max_px(input_dir):
@@ -85,7 +94,7 @@ def get_max_px(input_dir):
     max_px = 0
     print("Getting max px.......")
 
-    for file in glob.glob("*.tif"):
+    for file in case_insensitive_path_list([".TIFF", ".tif"]):
         image = import_img(file)
         image_max_px = np.amax(image)
 
@@ -149,8 +158,15 @@ def add_time_stamp(img, current_time, original_script_path):
 
 ### Makes a video
 def make_video(input_dir, output_dir):
+    # This is a hacky solution to the extension case problem, but works
+    rename_path = os.path.join(input_dir, '*')
+    command_string = "rename TIF tif " + rename_path
+    os.system(command_string)
+
     # Making the input and output paths
     in_path = os.path.join(input_dir, '*.tif')
+    print("In path")
+    print(in_path)
 
     output_file_name = str(os.path.basename(output_dir)) + ".mp4"
     out_path = os.path.join(output_dir, output_file_name)
@@ -193,7 +209,7 @@ def main():
     max_px = get_max_px(args.input_dir)
     
     # Processing each frame
-    for file in sorted(glob.glob("*.tif")):
+    for file in case_insensitive_path_list([".TIFF", ".tif"]):
         print("Processing " + file)
         image = import_img(file)
         image = convert_img(image, max_px)
@@ -211,8 +227,7 @@ def main():
     video_input_dir = os.path.join(args.input_dir, temp_folder_name)
     make_video(video_input_dir, args.output_dir)
 
-    # Deleting the temporary directory
-    shutil.rmtree(video_input_dir)
+    #shutil.rmtree(video_input_dir)
 
 
 if __name__== "__main__":
