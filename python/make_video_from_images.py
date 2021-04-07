@@ -227,7 +227,7 @@ def main():
     video_input_dir = os.path.join(args.input_dir, temp_folder_name)
     make_video(video_input_dir, args.output_dir)
 
-    #shutil.rmtree(video_input_dir)
+    shutil.rmtree(video_input_dir)
 
 
 if __name__== "__main__":
