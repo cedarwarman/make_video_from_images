@@ -20,6 +20,7 @@
 #
 #########################################################
 
+##### UPDATE ######
 """
 Takes a folder full of images, outputs a video. Designed to take micro-manager
 time lapse output in 12 bit tif format. Not sure how this will work with other
@@ -94,7 +95,7 @@ def get_max_px(input_dir):
     max_px = 0
     print("Getting max px.......")
 
-    for file in case_insensitive_path_list([".TIFF", ".jpg"]):
+    for file in case_insensitive_path_list([".tif"]):
         image = import_img(file)
         image_max_px = np.amax(image)
 
@@ -164,7 +165,7 @@ def make_video(input_dir, output_dir):
     #os.system(command_string)
 
     # Making the input and output paths
-    in_path = os.path.join(input_dir, '*.jpg')
+    in_path = os.path.join(input_dir, '*.tif')
     print("In path")
     print(in_path)
 
@@ -176,7 +177,7 @@ def make_video(input_dir, output_dir):
     # Using the ffmpeg bindings:
     (
         ffmpeg
-        .input(in_path, pattern_type='glob', framerate=15)
+        .input(in_path, pattern_type='glob', framerate=12)
         .output(out_path, vcodec='libx264', pix_fmt='yuv420p')
         .run()
     )
@@ -209,7 +210,7 @@ def main():
     max_px = get_max_px(args.input_dir)
     
     # Processing each frame
-    for file in case_insensitive_path_list([".TIFF", ".jpg"]):
+    for file in case_insensitive_path_list([".tif"]):
         print("Processing " + file)
         image = import_img(file)
         image = convert_img(image, max_px)
