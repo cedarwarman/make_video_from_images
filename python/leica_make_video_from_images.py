@@ -177,7 +177,7 @@ def make_video(input_dir, output_dir):
     # Using the ffmpeg bindings:
     (
         ffmpeg
-        .input(in_path, pattern_type='glob', framerate=12)
+        .input(in_path, pattern_type='glob', framerate=12, threads=8)
         .output(out_path, vcodec='libx264', pix_fmt='yuv420p')
         .run()
     )
